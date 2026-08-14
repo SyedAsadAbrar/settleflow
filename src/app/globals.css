@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #17251f;
+  --muted: #66756e;
+  --line: #dfe6e2;
+  --surface: #ffffff;
+  --canvas: #f5f7f5;
+  --brand: #176b4d;
+  --brand-dark: #10533b;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--canvas); }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--canvas);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-[#dfe6e2] bg-white shadow-[0_1px_2px_rgba(18,42,31,0.04)];
+  }
+  .btn-primary {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#176b4d] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#10533b] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-[#d5ded9] bg-white px-4 py-2 text-sm font-semibold text-[#263d33] transition-colors hover:bg-[#f6f8f7] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .field {
+    @apply block min-h-10 w-full rounded-lg border border-[#cfd9d4] bg-white px-3 py-2 text-sm text-[#17251f] outline-none placeholder:text-[#8c9a94] focus:border-[#29805f] focus:ring-2 focus:ring-[#29805f]/15;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-[#30463c];
+  }
+}
