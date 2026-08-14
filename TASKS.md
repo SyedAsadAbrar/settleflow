@@ -70,7 +70,7 @@ Checked items are present in the repository and were reasonably verified. Deploy
 - [x] Overpayment rejection
 - [x] Overdue handling
 - [x] Order locking
-- [x] Replica-set concurrency integration test
+- [x] Replica-set concurrency integration test (runs in CI when `MONGODB_TEST_URI` is configured)
 
 ## Delivery
 
@@ -94,4 +94,4 @@ Checked items are present in the repository and were reasonably verified. Deploy
 
 ## Last verified
 
-On 2026-08-14, `pnpm lint`, `pnpm typecheck`, and 18 Vitest tests completed successfully. The deployed Atlas-backed API was verified with synthetic accounts: signup/current user/logout, ownership isolation, order creation/deletion, derived overdue filtering, partial and final payment, order locking, overpayment rejection, and post-payment rejection. Two concurrent `$600` requests against a fresh `$1,000` order returned one `201` and one `409`, leaving one payment and `$400` due.
+On 2026-08-14, `pnpm lint`, `pnpm typecheck`, and the production build completed successfully. Nineteen Vitest tests passed; the replica-set integration test is skipped until a dedicated `MONGODB_TEST_URI` is configured. The deployed Atlas-backed API was verified with synthetic accounts: signup/current user/logout, ownership isolation, order creation/deletion, derived overdue filtering, partial and final payment, order locking, overpayment rejection, and post-payment rejection. Two concurrent `$600` requests against a fresh `$1,000` order returned one `201` and one `409`, leaving one payment and `$400` due.

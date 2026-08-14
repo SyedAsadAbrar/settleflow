@@ -24,4 +24,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_TEST_URI }}
+          RUN_DB_TESTS: ${{ secrets.MONGODB_TEST_URI != '' && '1' || '0' }}
       - run: pnpm build

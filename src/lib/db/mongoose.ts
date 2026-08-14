@@ -18,10 +18,17 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
   if (!MONGODB_URI) throw new Error("MONGODB_URI is not configured.");
   if (cache.connection) return cache.connection;
 
-  cache.promise ??= mongoose.connect(MONGODB_URI, {
-    bufferCommands: false,
-    serverSelectionTimeoutMS: 10_000,
-  });
+  if (!cache.promise) {
+    cache.promise = mongoose.connect(MONGODB_URI, {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 10_000,
+    }).catch((error: unknown) => {
+      // A transient failed connection must not poison this server instance forever.
+      cache.promise = null;
+      throw error;
+    });
+  }
+
   cache.connection = await cache.promise;
   return cache.connection;
 }

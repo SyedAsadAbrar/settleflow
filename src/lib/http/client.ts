@@ -1,12 +1,24 @@
 interface ErrorPayload {
-  error?: { message?: string };
+  error?: {
+    message?: string;
+    details?: Record<string, string>;
+  };
 }
 
-export async function getApiError(response: Response): Promise<string> {
+export interface ClientApiError {
+  message: string;
+  details: Record<string, string>;
+}
+
+export async function getApiError(response: Response): Promise<ClientApiError> {
   try {
     const payload = (await response.json()) as ErrorPayload;
-    return payload.error?.message ?? "Something went wrong. Please try again.";
+    const details = payload.error?.details ?? {};
+    return {
+      message: details.request ?? payload.error?.message ?? "Something went wrong. Please try again.",
+      details,
+    };
   } catch {
-    return "Something went wrong. Please try again.";
+    return { message: "Something went wrong. Please try again.", details: {} };
   }
 }

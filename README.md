@@ -174,6 +174,8 @@ corepack pnpm build
 
 Tests cover multi-line cents totals, every status branch, exact and excessive balances, payment after full settlement, order immutability, and decimal input parsing. The GitHub Actions workflow runs install, lint, typecheck, tests, and build.
 
+The suite also includes a database-backed concurrent-payment test. It is skipped locally unless `RUN_DB_TESTS=1` and `MONGODB_URI` point to a dedicated non-production Atlas replica-set database. In GitHub Actions it runs automatically after adding a repository secret named `MONGODB_TEST_URI`; never use the production URI for this test because it creates and then cleans up a temporary account and order.
+
 ## Deployment
 
 ### Vercel + Atlas

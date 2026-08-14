@@ -12,7 +12,7 @@ SettleFlow is a single Next.js and TypeScript application containing both the Re
 - MongoDB Atlas-compatible transactions through Mongoose
 - Zod request validation
 - Tailwind CSS
-- Vitest domain tests
+- Vitest domain tests plus an opt-in Atlas replica-set integration test
 
 A separate Express deployment is intentionally not used. One deployable application reduces delivery and operational overhead for the take-home while internal modules preserve backend boundaries.
 
@@ -61,7 +61,7 @@ src/
     payments/                payment schemas, domain rules, services
     users/                   authentication schemas and services
   types/                     shared view/domain types
-tests/                       pure domain tests
+tests/                       domain tests and opt-in database integration tests
 ```
 
 The main domain areas are authentication, orders, and payments.
@@ -109,6 +109,8 @@ sum(payments.amountCents) <= order.totalCents
 The payment service uses a MongoDB transaction to read the owned order, aggregate its payments, validate the balance, update the order's private `paymentVersion`, and insert the payment. The `paymentVersion` write forces simultaneous payment transactions to contend on the same order document. A conflicting transaction is retried against a fresh snapshot and must revalidate the new remaining balance.
 
 This design requires MongoDB Atlas or another replica set. There is deliberately no unsafe non-transactional fallback.
+
+The repository includes a concurrent-payment integration test. It runs only when `RUN_DB_TESTS=1` and `MONGODB_URI` point to a dedicated non-production replica-set database; CI enables it when its `MONGODB_TEST_URI` secret is configured.
 
 ## Authentication and authorization
 

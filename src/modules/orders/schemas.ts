@@ -29,6 +29,15 @@ export const orderInputSchema = z.object({
   customer: z.string().trim().min(1, "Customer is required.").max(200),
   dueDate: dateStringSchema,
   lineItems: z.array(lineItemSchema).min(1, "Add at least one line item.").max(100),
+}).superRefine((order, context) => {
+  const totalCents = order.lineItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+  if (!Number.isSafeInteger(totalCents)) {
+    context.addIssue({
+      code: "custom",
+      path: ["lineItems"],
+      message: "Order total exceeds the supported monetary range.",
+    });
+  }
 });
 
 export const orderStatusSchema = z.enum(ORDER_STATUSES);
