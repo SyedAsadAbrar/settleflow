@@ -89,8 +89,9 @@ Checked items are present in the repository and were reasonably verified. Deploy
 - [ ] Audit log
 - [ ] Idempotency key
 - [x] CI
+- [x] Vercel Web Analytics
 - [ ] Additional UI polish
 
 ## Last verified
 
-On 2026-08-14, `pnpm lint`, `pnpm typecheck`, 18 Vitest tests, and the Webpack production build completed successfully. The login route and unauthenticated current-user API were smoke-tested against the locally running production server. No MongoDB Atlas integration or public deployment was available, so database-backed and deployed smoke tests remain pending.
+On 2026-08-14, after adding Vercel Web Analytics, `pnpm lint`, `pnpm typecheck`, 18 Vitest tests, and the Webpack production build completed successfully. The login route and unauthenticated current-user API were smoke-tested against the locally running production server. No public deployment was available, so deployed smoke tests remain pending.
