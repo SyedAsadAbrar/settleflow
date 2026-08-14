@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, LoaderCircle } from "lucide-react";
+import { FieldError } from "@/components/field-error";
 import { getApiError } from "@/lib/http/client";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
@@ -47,7 +48,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <div>
         <label className="label" htmlFor="email">Email address</label>
         <input className="field" id="email" name="email" type="email" autoComplete="email" required autoFocus placeholder="you@company.com" aria-invalid={Boolean(fieldErrors.email)} aria-describedby={fieldErrors.email ? "email-error" : undefined} />
-        {fieldErrors.email ? <p id="email-error" className="mt-1.5 text-xs text-rose-700">{fieldErrors.email}</p> : null}
+        <FieldError id="email-error" message={fieldErrors.email} />
       </div>
       <div>
         <label className="label" htmlFor="password">Password</label>
@@ -63,7 +64,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           aria-invalid={Boolean(fieldErrors.password)}
           aria-describedby={fieldErrors.password ? "password-error" : undefined}
         />
-        {fieldErrors.password ? <p id="password-error" className="mt-1.5 text-xs text-rose-700">{fieldErrors.password}</p> : null}
+        <FieldError id="password-error" message={fieldErrors.password} />
       </div>
       {error && !hasFieldErrors ? <p role="alert" className="rounded-lg bg-rose-50 px-3 py-2.5 text-sm text-rose-700">{error}</p> : null}
       <button className="btn-primary w-full" type="submit" disabled={submitting}>

@@ -6,16 +6,8 @@ import { Payment } from "@/models/Payment";
 import { deriveOrderStatus, getAmountDueCents } from "@/modules/orders/domain";
 import { validatePayment } from "@/modules/payments/domain";
 import type { ParsedPaymentInput } from "@/modules/payments/schemas";
+import { toPaymentView } from "@/modules/payments/view";
 import type { PaymentView } from "@/types/order";
-
-interface CreatedPayment {
-  _id: Types.ObjectId;
-  orderId: Types.ObjectId;
-  amountCents: number;
-  paymentDate: Date;
-  note?: string;
-  createdAt: Date;
-}
 
 export async function recordPayment(userId: string, orderId: string, input: ParsedPaymentInput) {
   if (!Types.ObjectId.isValid(orderId)) {
@@ -78,17 +70,9 @@ export async function recordPayment(userId: string, orderId: string, input: Pars
         ],
         { session },
       );
-      const payment = paymentDocument.toObject() as CreatedPayment;
       const amountPaidCents = currentPaidCents + input.amount;
       result = {
-        payment: {
-          id: payment._id.toString(),
-          orderId: payment.orderId.toString(),
-          amountCents: payment.amountCents,
-          paymentDate: payment.paymentDate.toISOString().slice(0, 10),
-          ...(payment.note ? { note: payment.note } : {}),
-          createdAt: payment.createdAt.toISOString(),
-        },
+        payment: toPaymentView(paymentDocument.toObject()),
         amountPaidCents,
         amountDueCents: getAmountDueCents(order.totalCents, amountPaidCents),
         status: deriveOrderStatus(order.totalCents, amountPaidCents, order.dueDate),

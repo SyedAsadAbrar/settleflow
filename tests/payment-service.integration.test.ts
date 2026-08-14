@@ -6,7 +6,7 @@ import { Order } from "../src/models/Order";
 import { Payment } from "../src/models/Payment";
 import { User } from "../src/models/User";
 import { orderInputSchema } from "../src/modules/orders/schemas";
-import { createOrder, getOrder } from "../src/modules/orders/service";
+import { createOrder, getOrder, updateOrder } from "../src/modules/orders/service";
 import { paymentInputSchema } from "../src/modules/payments/schemas";
 import { recordPayment } from "../src/modules/payments/service";
 
@@ -57,5 +57,11 @@ describeDatabase("payment service database integration", () => {
     expect(detail.order.amountPaidCents).toBe(60_000);
     expect(detail.order.amountDueCents).toBe(40_000);
     expect(detail.order.status).toBe("partially_paid");
+
+    await expect(updateOrder(userId, order.id, orderInputSchema.parse({
+      customer: "Changed customer",
+      dueDate: "2030-01-01",
+      lineItems: [{ description: "Settlement", quantity: 1, unitPrice: "1000.00" }],
+    }))).rejects.toMatchObject({ code: "ORDER_LOCKED" });
   }, 30_000);
 });

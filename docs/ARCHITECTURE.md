@@ -55,10 +55,11 @@ src/
     auth/                    JWT cookie session
     db/                      cached Mongoose connection
     http/                    API errors and client helpers
+    validation.ts            shared request-boundary validation
   models/                    Mongoose schemas and indexes
   modules/
     orders/                  order schemas, domain rules, services
-    payments/                payment schemas, domain rules, services
+    payments/                payment schemas, domain rules, views, services
     users/                   authentication schemas and services
   types/                     shared view/domain types
 tests/                       domain tests and opt-in database integration tests

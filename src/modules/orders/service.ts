@@ -4,12 +4,12 @@ import { ApiError } from "@/lib/http/api-error";
 import { Order } from "@/models/Order";
 import { Payment } from "@/models/Payment";
 import {
-  assertOrderEditable,
   calculateOrderTotalCents,
   deriveOrderStatus,
   getAmountDueCents,
 } from "@/modules/orders/domain";
 import type { ParsedOrderInput } from "@/modules/orders/schemas";
+import { toPaymentView } from "@/modules/payments/view";
 import type { LineItemInput, OrderStatus, OrderView, PaymentView } from "@/types/order";
 
 interface LeanOrder {
@@ -58,17 +58,6 @@ function serializeOrder(order: LeanOrder, amountPaidCents: number, now = new Dat
   };
 }
 
-function serializePayment(payment: LeanPayment): PaymentView {
-  return {
-    id: payment._id.toString(),
-    orderId: payment.orderId.toString(),
-    amountCents: payment.amountCents,
-    paymentDate: payment.paymentDate.toISOString().slice(0, 10),
-    ...(payment.note ? { note: payment.note } : {}),
-    createdAt: payment.createdAt.toISOString(),
-  };
-}
-
 function assertValidObjectId(id: string): void {
   if (!Types.ObjectId.isValid(id)) {
     throw new ApiError(400, "INVALID_ID", "The order ID is invalid.");
@@ -113,7 +102,7 @@ export async function getOrder(userId: string, orderId: string): Promise<{ order
   ]);
   if (!order) throw new ApiError(404, "ORDER_NOT_FOUND", "Order not found.");
   const amountPaidCents = payments.reduce((sum, payment) => sum + payment.amountCents, 0);
-  return { order: serializeOrder(order, amountPaidCents), payments: payments.map(serializePayment) };
+  return { order: serializeOrder(order, amountPaidCents), payments: payments.map(toPaymentView) };
 }
 
 export async function updateOrder(userId: string, orderId: string, input: ParsedOrderInput): Promise<OrderView> {
@@ -128,9 +117,7 @@ export async function updateOrder(userId: string, orderId: string, input: Parsed
       if (!order) throw new ApiError(404, "ORDER_NOT_FOUND", "Order not found.");
 
       const paymentCount = await Payment.countDocuments({ orderId, userId }).session(session);
-      try {
-        assertOrderEditable(paymentCount);
-      } catch {
+      if (paymentCount > 0) {
         throw new ApiError(409, "ORDER_LOCKED", "Orders cannot be modified after a payment has been recorded.");
       }
 

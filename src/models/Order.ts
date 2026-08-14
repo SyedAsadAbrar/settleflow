@@ -1,4 +1,4 @@
-import { Schema, model, models, type InferSchemaType } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 const lineItemSchema = new Schema(
   {
@@ -23,7 +23,5 @@ const orderSchema = new Schema(
 
 orderSchema.index({ userId: 1, createdAt: -1 });
 orderSchema.index({ userId: 1, dueDate: 1 });
-
-export type OrderDocument = InferSchemaType<typeof orderSchema>;
 
 export const Order = models.Order ?? model("Order", orderSchema);

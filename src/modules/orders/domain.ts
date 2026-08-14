@@ -43,9 +43,3 @@ export function deriveOrderStatus(
 export function getAmountDueCents(totalCents: number, amountPaidCents: number): number {
   return Math.max(0, totalCents - amountPaidCents);
 }
-
-export function assertOrderEditable(paymentCount: number): void {
-  if (paymentCount > 0) {
-    throw new Error("ORDER_LOCKED");
-  }
-}

@@ -1,4 +1,4 @@
-import { Schema, model, models, type InferSchemaType } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
 const paymentSchema = new Schema(
   {
@@ -13,7 +13,5 @@ const paymentSchema = new Schema(
 
 paymentSchema.index({ orderId: 1, createdAt: -1 });
 paymentSchema.index({ userId: 1, orderId: 1 });
-
-export type PaymentDocument = InferSchemaType<typeof paymentSchema>;
 
 export const Payment = models.Payment ?? model("Payment", paymentSchema);

@@ -4,10 +4,16 @@ import { useMemo, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, LoaderCircle, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { FieldError } from "@/components/field-error";
 import { getApiError } from "@/lib/http/client";
 import { formatMoney, parseMoneyToCents } from "@/lib/money";
 
-interface EditableLineItem { id: number; description: string; quantity: string; unitPrice: string }
+interface EditableLineItem {
+  id: number;
+  description: string;
+  quantity: string;
+  unitPrice: string;
+}
 
 export function OrderForm() {
   const router = useRouter();
@@ -25,6 +31,15 @@ export function OrderForm() {
 
   function updateItem(id: number, field: keyof Omit<EditableLineItem, "id">, value: string) {
     setItems((current) => current.map((item) => item.id === id ? { ...item, [field]: value } : item));
+  }
+
+  function addItem() {
+    setItems((current) => [...current, { id: nextId, description: "", quantity: "1", unitPrice: "" }]);
+    setNextId((id) => id + 1);
+  }
+
+  function removeItem(id: number) {
+    setItems((current) => current.filter((item) => item.id !== id));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -70,23 +85,38 @@ export function OrderForm() {
           <section className="card p-5 sm:p-6">
             <h2 className="font-semibold">Order details</h2><p className="mt-1 text-sm text-[#6b7973]">Who is being billed and when is payment due?</p>
             <div className="mt-5 grid gap-5 sm:grid-cols-2">
-              <div><label className="label" htmlFor="customer">Customer</label><input className="field" id="customer" name="customer" required maxLength={200} placeholder="Acme Corporation" aria-invalid={Boolean(fieldErrors.customer)} aria-describedby={fieldErrors.customer ? "customer-error" : undefined} />{fieldErrors.customer ? <p id="customer-error" className="mt-1.5 text-xs text-rose-700">{fieldErrors.customer}</p> : null}</div>
-              <div><label className="label" htmlFor="dueDate">Due date</label><input className="field" id="dueDate" name="dueDate" type="date" required aria-invalid={Boolean(fieldErrors.dueDate)} aria-describedby={fieldErrors.dueDate ? "due-date-error" : undefined} />{fieldErrors.dueDate ? <p id="due-date-error" className="mt-1.5 text-xs text-rose-700">{fieldErrors.dueDate}</p> : null}</div>
+              <div>
+                <label className="label" htmlFor="customer">Customer</label>
+                <input className="field" id="customer" name="customer" required maxLength={200} placeholder="Acme Corporation" aria-invalid={Boolean(fieldErrors.customer)} aria-describedby={fieldErrors.customer ? "customer-error" : undefined} />
+                <FieldError id="customer-error" message={fieldErrors.customer} />
+              </div>
+              <div>
+                <label className="label" htmlFor="dueDate">Due date</label>
+                <input className="field" id="dueDate" name="dueDate" type="date" required aria-invalid={Boolean(fieldErrors.dueDate)} aria-describedby={fieldErrors.dueDate ? "due-date-error" : undefined} />
+                <FieldError id="due-date-error" message={fieldErrors.dueDate} />
+              </div>
             </div>
           </section>
           <section className="card overflow-hidden">
-            <div className="border-b border-[#e4eae7] p-5 sm:p-6"><h2 className="font-semibold">Line items</h2><p className="mt-1 text-sm text-[#6b7973]">The server will calculate and store the authoritative total.</p>{fieldErrors.lineItems ? <p className="mt-2 text-xs text-rose-700">{fieldErrors.lineItems}</p> : null}</div>
+            <div className="border-b border-[#e4eae7] p-5 sm:p-6">
+              <h2 className="font-semibold">Line items</h2>
+              <p className="mt-1 text-sm text-[#6b7973]">The server will calculate and store the authoritative total.</p>
+              <FieldError message={fieldErrors.lineItems} />
+            </div>
             <div className="divide-y divide-[#e8edea]">
               {items.map((item, index) => (
-                <div key={item.id} className="grid gap-4 p-5 sm:grid-cols-[1fr_110px_150px_40px] sm:items-end sm:p-6">
-                  <div><label className="label" htmlFor={`description-${item.id}`}>Description</label><input className="field" id={`description-${item.id}`} value={item.description} onChange={(e) => updateItem(item.id, "description", e.target.value)} required maxLength={200} placeholder={`Item ${index + 1}`} aria-invalid={Boolean(fieldErrors[`lineItems.${index}.description`])} />{fieldErrors[`lineItems.${index}.description`] ? <p className="mt-1.5 text-xs text-rose-700">{fieldErrors[`lineItems.${index}.description`]}</p> : null}</div>
-                  <div><label className="label" htmlFor={`quantity-${item.id}`}>Quantity</label><input className="field" id={`quantity-${item.id}`} type="number" min="1" step="1" value={item.quantity} onChange={(e) => updateItem(item.id, "quantity", e.target.value)} required aria-invalid={Boolean(fieldErrors[`lineItems.${index}.quantity`])} />{fieldErrors[`lineItems.${index}.quantity`] ? <p className="mt-1.5 text-xs text-rose-700">{fieldErrors[`lineItems.${index}.quantity`]}</p> : null}</div>
-                  <div><label className="label" htmlFor={`price-${item.id}`}>Unit price (USD)</label><input className="field" id={`price-${item.id}`} type="number" min="0" step="0.01" inputMode="decimal" value={item.unitPrice} onChange={(e) => updateItem(item.id, "unitPrice", e.target.value)} required placeholder="0.00" aria-invalid={Boolean(fieldErrors[`lineItems.${index}.unitPrice`])} />{fieldErrors[`lineItems.${index}.unitPrice`] ? <p className="mt-1.5 text-xs text-rose-700">{fieldErrors[`lineItems.${index}.unitPrice`]}</p> : null}</div>
-                  <button type="button" onClick={() => setItems((current) => current.filter((row) => row.id !== item.id))} disabled={items.length === 1} className="grid size-10 place-items-center rounded-lg text-[#829089] hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-30" aria-label={`Remove item ${index + 1}`}><Trash2 className="size-4" /></button>
-                </div>
+                <LineItemRow
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  canRemove={items.length > 1}
+                  fieldErrors={fieldErrors}
+                  onChange={updateItem}
+                  onRemove={removeItem}
+                />
               ))}
             </div>
-            <div className="bg-[#fafbfa] px-5 py-4 sm:px-6"><button type="button" className="btn-secondary" onClick={() => { setItems((current) => [...current, { id: nextId, description: "", quantity: "1", unitPrice: "" }]); setNextId((id) => id + 1); }}><Plus className="size-4" />Add line item</button></div>
+            <div className="bg-[#fafbfa] px-5 py-4 sm:px-6"><button type="button" className="btn-secondary" onClick={addItem}><Plus className="size-4" />Add line item</button></div>
           </section>
         </div>
         <aside className="card p-5 lg:sticky lg:top-24">
@@ -98,5 +128,46 @@ export function OrderForm() {
         </aside>
       </div>
     </form>
+  );
+}
+
+function LineItemRow({
+  item,
+  index,
+  canRemove,
+  fieldErrors,
+  onChange,
+  onRemove,
+}: {
+  item: EditableLineItem;
+  index: number;
+  canRemove: boolean;
+  fieldErrors: Record<string, string>;
+  onChange: (id: number, field: keyof Omit<EditableLineItem, "id">, value: string) => void;
+  onRemove: (id: number) => void;
+}) {
+  const descriptionError = fieldErrors[`lineItems.${index}.description`];
+  const quantityError = fieldErrors[`lineItems.${index}.quantity`];
+  const unitPriceError = fieldErrors[`lineItems.${index}.unitPrice`];
+
+  return (
+    <div className="grid gap-4 p-5 sm:grid-cols-[1fr_110px_150px_40px] sm:items-end sm:p-6">
+      <div>
+        <label className="label" htmlFor={`description-${item.id}`}>Description</label>
+        <input className="field" id={`description-${item.id}`} value={item.description} onChange={(event) => onChange(item.id, "description", event.target.value)} required maxLength={200} placeholder={`Item ${index + 1}`} aria-invalid={Boolean(descriptionError)} aria-describedby={descriptionError ? `description-${item.id}-error` : undefined} />
+        <FieldError id={`description-${item.id}-error`} message={descriptionError} />
+      </div>
+      <div>
+        <label className="label" htmlFor={`quantity-${item.id}`}>Quantity</label>
+        <input className="field" id={`quantity-${item.id}`} type="number" min="1" step="1" value={item.quantity} onChange={(event) => onChange(item.id, "quantity", event.target.value)} required aria-invalid={Boolean(quantityError)} aria-describedby={quantityError ? `quantity-${item.id}-error` : undefined} />
+        <FieldError id={`quantity-${item.id}-error`} message={quantityError} />
+      </div>
+      <div>
+        <label className="label" htmlFor={`price-${item.id}`}>Unit price (USD)</label>
+        <input className="field" id={`price-${item.id}`} type="number" min="0" step="0.01" inputMode="decimal" value={item.unitPrice} onChange={(event) => onChange(item.id, "unitPrice", event.target.value)} required placeholder="0.00" aria-invalid={Boolean(unitPriceError)} aria-describedby={unitPriceError ? `price-${item.id}-error` : undefined} />
+        <FieldError id={`price-${item.id}-error`} message={unitPriceError} />
+      </div>
+      <button type="button" onClick={() => onRemove(item.id)} disabled={!canRemove} className="grid size-10 place-items-center rounded-lg text-[#829089] hover:bg-rose-50 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-30" aria-label={`Remove item ${index + 1}`}><Trash2 className="size-4" /></button>
+    </div>
   );
 }

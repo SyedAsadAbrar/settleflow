@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  assertOrderEditable,
-  calculateOrderTotalCents,
-  deriveOrderStatus,
-} from "../src/modules/orders/domain";
+import { calculateOrderTotalCents, deriveOrderStatus } from "../src/modules/orders/domain";
 
 describe("calculateOrderTotalCents", () => {
   it("calculates a single line in integer cents", () => {
@@ -51,15 +47,5 @@ describe("deriveOrderStatus", () => {
 
   it("does not mark an order overdue until the UTC due-date day has ended", () => {
     expect(deriveOrderStatus(100_000, 0, new Date("2026-08-14T00:00:00.000Z"), now)).toBe("pending");
-  });
-});
-
-describe("order immutability", () => {
-  it("allows edits before the first payment", () => {
-    expect(() => assertOrderEditable(0)).not.toThrow();
-  });
-
-  it("rejects financial edits after the first payment", () => {
-    expect(() => assertOrderEditable(1)).toThrow("ORDER_LOCKED");
   });
 });
