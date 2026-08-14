@@ -52,11 +52,11 @@ Decision status reflects the repository as of 2026-08-14. “Implemented” mean
 
 ## D007 — Prevent concurrent overpayment
 
-**Status:** Implemented; database-backed concurrency test pending
+**Status:** Implemented and verified against the deployed Atlas replica set
 **Decision:** Enforce `sum(payments) <= order.totalCents` with a MongoDB transaction that validates the balance, increments the order's private `paymentVersion`, and inserts the payment.
 **Context:** If requests A and B both read a remaining balance of 1000 and both submit 600, both cannot succeed. Transactions that only insert different payment documents can still suffer write skew.
 **Reason:** Updating the same order document creates a write conflict. MongoDB retries the conflicting transaction, which recomputes the balance and rejects an overpayment.
-**Tradeoffs:** Transactions require Atlas or another replica set. Pure payment validation is tested, but a real replica-set concurrency integration test has not yet been run.
+**Tradeoffs:** Transactions require Atlas or another replica set. Pure domain tests and a live two-request `$600 + $600` test against a `$1,000` order verified that exactly one payment succeeds and the other is rejected.
 
 ## D008 — Financial API errors are actionable
 
