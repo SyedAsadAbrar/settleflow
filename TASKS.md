@@ -78,11 +78,11 @@ Checked items are present in the repository and were reasonably verified. Deploy
 - [x] Typecheck
 - [x] Tests
 - [x] Production build
-- [ ] MongoDB Atlas configured
-- [ ] Public deployment
-- [ ] Deployed production smoke test
+- [x] MongoDB Atlas configured
+- [x] Public deployment
+- [x] Deployed production smoke test
 - [x] README
-- [ ] Live URL added to README
+- [x] Live URL added to README
 
 ## Optional
 
@@ -94,4 +94,4 @@ Checked items are present in the repository and were reasonably verified. Deploy
 
 ## Last verified
 
-On 2026-08-14, after adding Vercel Web Analytics, `pnpm lint`, `pnpm typecheck`, 18 Vitest tests, and the Webpack production build completed successfully. The login route and unauthenticated current-user API were smoke-tested against the locally running production server. No public deployment was available, so deployed smoke tests remain pending.
+On 2026-08-14, after adding Vercel Web Analytics, `pnpm lint`, `pnpm typecheck`, 18 Vitest tests, and the Webpack production build completed successfully. The Atlas-backed application was manually exercised through the deployed UI. The public login route returned HTTP 200 from Vercel, and the unauthenticated current-user API returned the expected 401 response. The only remaining verification gap is the replica-set concurrency integration test.

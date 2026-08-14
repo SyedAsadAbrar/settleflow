@@ -44,7 +44,7 @@ Decision status reflects the repository as of 2026-08-14. “Implemented” mean
 
 ## D006 — Single Next.js deployment
 
-**Status:** Implemented locally; public deployment pending
+**Status:** Implemented and publicly deployed
 **Decision:** Use one Next.js App Router application for the React UI and REST endpoints rather than separate frontend and Express deployments.
 **Context:** This is a time-constrained take-home that still needs clean backend architecture.
 **Reason:** A single deployment is the fastest reliable delivery path while module boundaries preserve separation of concerns.

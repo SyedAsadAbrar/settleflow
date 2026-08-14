@@ -2,7 +2,7 @@
 
 SettleFlow is a backend-first financial operations application for creating customer orders and applying partial or full payments. It keeps the order balance auditable, derives status from financial facts, and prevents overpayment even when payment requests arrive concurrently.
 
-**Live application:** deployment URL pending Vercel project connection.
+**Live application:** [settleflow-ten.vercel.app](https://settleflow-ten.vercel.app)
 
 ## What is implemented
 
